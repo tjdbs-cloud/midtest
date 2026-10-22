@@ -843,59 +843,59 @@ export default function BrickBreakerGame() {
 
             {/* Clear Modal Overlay */}
             {gameState === "clear" && (
-              <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-4 sm:p-6 text-center animate-fade-in">
-                <div className="text-4xl sm:text-5xl mb-2">🎉</div>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-400 mb-2">
+              <div className="absolute inset-0 bg-black/85 backdrop-blur-md flex flex-col items-center justify-start sm:justify-center p-3 sm:p-6 text-center animate-fade-in overflow-y-auto touch-auto z-20">
+                <div className="text-3xl sm:text-4xl my-1 sm:mb-2">🎉</div>
+                <h2 className="text-xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-400 mb-1">
                   게임 미션 완료!
                 </h2>
-                <p className="text-slate-300 text-xs sm:text-sm mb-4">
-                  연한 빨강 벽돌 3개를 모두 성공적으로 제거했습니다!
+                <p className="text-slate-300 text-[11px] sm:text-sm mb-2 sm:mb-3">
+                  연한 빨강 벽돌 3개를 모두 제거했습니다!
                 </p>
 
                 {/* 측정된 완료 시간 출력 */}
-                <div className="bg-slate-800/90 border border-slate-700 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl mb-3 shadow-inner">
-                  <div className="text-[11px] sm:text-xs text-slate-400 mb-0.5">내 완료 소요 시간</div>
-                  <div className="text-xl sm:text-2xl font-mono font-bold text-yellow-300">
+                <div className="w-full max-w-xs bg-slate-800/90 border border-slate-700 px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-xl mb-2 sm:mb-3 shadow-inner">
+                  <div className="text-[10px] sm:text-xs text-slate-400">내 완료 소요 시간</div>
+                  <div className="text-lg sm:text-2xl font-mono font-bold text-yellow-300">
                     ⏱️ {finalTimeStr}
                   </div>
                   {/* Google Sheets 저장 상태 안내 */}
-                  <div className="text-[11px] mt-1 text-slate-400 flex items-center justify-center gap-1">
+                  <div className="text-[10px] sm:text-[11px] mt-0.5 text-slate-400 flex items-center justify-center gap-1">
                     {saveStatus === "saving" && <span className="text-cyan-400 animate-pulse">구글 시트에 기록 저장 중...</span>}
                     {saveStatus === "success" && <span className="text-emerald-400">✓ 구글 시트 저장 완료</span>}
-                    {saveStatus === "error" && <span className="text-amber-400">⚠️ 구글 시트 저장 실패 (오프라인 모드)</span>}
+                    {saveStatus === "error" && <span className="text-amber-400">⚠️ 구글 시트 저장 실패 (오프라인)</span>}
                   </div>
                 </div>
 
-                {/* 구글 시트 기록 기반 빠른 순위 Top 3 (이름 + 분:초 형태의 완료 시간) */}
-                <div className="w-full max-w-xs bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 mb-4 shadow">
-                  <h3 className="text-xs font-bold text-amber-300 mb-2 flex items-center justify-center gap-1">
+                {/* 구글 시트 기록 기반 빠른 순위 Top 3 */}
+                <div className="w-full max-w-xs bg-slate-900/95 border border-slate-700/80 rounded-xl p-2 sm:p-3 mb-2.5 sm:mb-4 shadow">
+                  <h3 className="text-[11px] sm:text-xs font-bold text-amber-300 mb-1.5 flex items-center justify-center gap-1">
                     🏆 명예의 전당 Top 3
                   </h3>
                   {top3List.length === 0 ? (
-                    <p className="text-[11px] text-slate-400 py-2">
+                    <p className="text-[10px] sm:text-[11px] text-slate-400 py-1">
                       {saveStatus === "saving" ? "랭킹을 불러오는 중..." : "등록된 기록이 없습니다."}
                     </p>
                   ) : (
-                    <div className="space-y-1.5">
+                    <div className="space-y-1">
                       {top3List.map((rec, idx) => {
                         const medal = idx === 0 ? "🥇 1위" : idx === 1 ? "🥈 2위" : "🥉 3위";
                         const isCurrent = rec.name === userName && rec.finishtime === finalTimeStr;
                         return (
                           <div
                             key={idx}
-                            className={`flex items-center justify-between text-xs px-2.5 py-1.5 rounded-lg border ${
+                            className={`flex items-center justify-between text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-lg border ${
                               isCurrent
                                 ? "bg-amber-500/20 border-amber-500/60 text-white font-bold"
                                 : "bg-slate-800/60 border-slate-700/50 text-slate-300"
                             }`}
                           >
-                            <span className="flex items-center gap-2">
+                            <span className="flex items-center gap-1.5">
                               <span className="font-semibold text-amber-400">{medal}</span>
-                              <span className="truncate max-w-[90px] text-slate-200 font-medium">
+                              <span className="truncate max-w-[85px] sm:max-w-[100px] text-slate-200">
                                 {rec.name}
                               </span>
                             </span>
-                            <span className="font-mono text-cyan-300 font-bold text-xs sm:text-sm tracking-wide">
+                            <span className="font-mono text-cyan-300 font-bold text-[11px] sm:text-sm">
                               ⏱️ {rec.finishtime}
                             </span>
                           </div>
@@ -905,10 +905,10 @@ export default function BrickBreakerGame() {
                   )}
                 </div>
 
-                <div className="flex justify-center w-full max-w-xs">
+                <div className="w-full max-w-xs pb-2 sm:pb-0">
                   <button
                     onClick={handleQuitGame}
-                    className="w-full py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 font-bold text-xs sm:text-sm shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-2"
+                    className="w-full py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:scale-95 font-bold text-xs sm:text-sm shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <span>첫 화면으로 돌아가기</span>
                     <span>🏠</span>
@@ -919,25 +919,25 @@ export default function BrickBreakerGame() {
 
             {/* Game Over Modal Overlay */}
             {gameState === "gameover" && (
-              <div className="absolute inset-0 bg-black/85 backdrop-blur-sm flex flex-col items-center justify-center p-4 sm:p-6 text-center animate-fade-in">
-                <div className="text-4xl sm:text-5xl mb-2">💥</div>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-red-500 mb-2 sm:mb-3">
+              <div className="absolute inset-0 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center p-3 sm:p-6 text-center animate-fade-in overflow-y-auto touch-auto z-20">
+                <div className="text-3xl sm:text-5xl mb-1 sm:mb-2">💥</div>
+                <h2 className="text-xl sm:text-3xl font-extrabold text-red-500 mb-1 sm:mb-3">
                   게임 미션 실패
                 </h2>
-                <p className="text-slate-300 text-xs sm:text-sm max-w-xs mb-5">
+                <p className="text-slate-300 text-[11px] sm:text-sm max-w-xs mb-3 sm:mb-5">
                   {userName} 님의 공을 모두 놓쳐 생명이 소진되었습니다. 다시 도전해 보세요!
                 </p>
 
                 <div className="flex gap-2 sm:gap-3">
                   <button
                     onClick={handleStartGame}
-                    className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg bg-red-600 hover:bg-red-500 font-bold text-xs sm:text-sm shadow transition-all"
+                    className="px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-lg bg-red-600 hover:bg-red-500 active:scale-95 font-bold text-xs sm:text-sm shadow transition-all cursor-pointer"
                   >
                     다시 시작
                   </button>
                   <button
                     onClick={handleQuitGame}
-                    className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg bg-slate-700 hover:bg-slate-600 font-bold text-xs sm:text-sm shadow transition-all"
+                    className="px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-lg bg-slate-700 hover:bg-slate-600 active:scale-95 font-bold text-xs sm:text-sm shadow transition-all cursor-pointer"
                   >
                     첫 화면으로
                   </button>
