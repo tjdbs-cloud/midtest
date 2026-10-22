@@ -44,6 +44,7 @@ export default function BrickBreakerGame() {
 
   const [userName, setUserName] = useState("");
   const [lives, setLives] = useState(3);
+  const [lifeLostMessage, setLifeLostMessage] = useState(false);
   const [redClearedCount, setRedClearedCount] = useState(0);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [finalTimeStr, setFinalTimeStr] = useState("");
@@ -273,19 +274,35 @@ export default function BrickBreakerGame() {
   }, []);
 
   // Reset ball position
-  const resetBallAndPaddle = useCallback(() => {
+  const resetBallAndPaddle = useCallback((withDelay = false) => {
     paddleXRef.current = (CANVAS_WIDTH - paddleWidth) / 2;
     ballPosRef.current = {
       x: CANVAS_WIDTH / 2,
       y: paddleY - ballRadius - 4,
     };
-    // Launch angle slightly random upward
-    const angle = (Math.PI / 4) + (Math.random() * (Math.PI / 2)); // 45 ~ 135 deg
-    const speed = 5.2;
-    ballSpeedRef.current = {
-      dx: speed * Math.cos(angle) * (Math.random() > 0.5 ? 1 : -1),
-      dy: -speed * Math.sin(angle),
-    };
+
+    if (withDelay) {
+      // Temporarily freeze ball speed
+      ballSpeedRef.current = { dx: 0, dy: 0 };
+      setLifeLostMessage(true);
+
+      setTimeout(() => {
+        setLifeLostMessage(false);
+        const angle = Math.PI / 4 + Math.random() * (Math.PI / 2); // 45 ~ 135 deg
+        const speed = 5.2;
+        ballSpeedRef.current = {
+          dx: speed * Math.cos(angle) * (Math.random() > 0.5 ? 1 : -1),
+          dy: -speed * Math.sin(angle),
+        };
+      }, 1000);
+    } else {
+      const angle = Math.PI / 4 + Math.random() * (Math.PI / 2); // 45 ~ 135 deg
+      const speed = 5.2;
+      ballSpeedRef.current = {
+        dx: speed * Math.cos(angle) * (Math.random() > 0.5 ? 1 : -1),
+        dy: -speed * Math.sin(angle),
+      };
+    }
   }, []);
 
   // Timer effect: counts only during "playing"
@@ -618,8 +635,8 @@ export default function BrickBreakerGame() {
             triggerGameOver();
             return;
           } else {
-            // Respawn ball and pause briefly
-            resetBallAndPaddle();
+            // Respawn ball and pause briefly with visual life-loss feedback
+            resetBallAndPaddle(true);
             return;
           }
         }
@@ -784,18 +801,26 @@ export default function BrickBreakerGame() {
                 </span>
               </div>
 
-              {/* Lives */}
-              <div className="flex-1 sm:flex-none flex items-center justify-center gap-1 bg-pink-950/40 border border-pink-800/50 px-2 sm:px-3 py-1 rounded-lg">
-                <span className="text-[11px] sm:text-xs text-pink-300">생명:</span>
-                <div className="flex gap-0.5 text-xs sm:text-base">
+              {/* Lives (남은 생명 시각화: 빨간 하트와 깨진 하트) */}
+              <div
+                className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-lg transition-all duration-300 ${
+                  lifeLostMessage
+                    ? "bg-red-600/40 border border-red-500 scale-105"
+                    : "bg-pink-950/40 border border-pink-800/50"
+                }`}
+              >
+                <span className="text-[11px] sm:text-xs text-pink-300 font-semibold">생명:</span>
+                <div className="flex gap-1 text-xs sm:text-base">
                   {Array.from({ length: 3 }).map((_, i) => (
                     <span
                       key={i}
-                      className={
-                        i < lives ? "text-pink-400 opacity-100" : "text-slate-600"
-                      }
+                      className={`inline-block transition-transform duration-300 ${
+                        i < lives
+                          ? "scale-100 drop-shadow-[0_0_4px_rgba(244,63,94,0.6)]"
+                          : "opacity-40 grayscale scale-90"
+                      }`}
                     >
-                      ❤️
+                      {i < lives ? "❤️" : "🖤"}
                     </span>
                   ))}
                 </div>
@@ -840,6 +865,16 @@ export default function BrickBreakerGame() {
               onPointerDown={handlePointerMove}
               className="block w-full h-auto cursor-pointer"
             />
+
+            {/* Missed Ball / Life Lost Alert Overlay */}
+            {lifeLostMessage && (
+              <div className="absolute inset-0 bg-red-950/40 backdrop-blur-[2px] flex flex-col items-center justify-center pointer-events-none animate-pulse z-10">
+                <div className="text-4xl mb-1">💔</div>
+                <div className="text-xl sm:text-2xl font-black text-white bg-red-600/90 px-4 py-1.5 rounded-full border border-red-400 shadow-xl">
+                  생명 감소! (남은 생명: {lives}개)
+                </div>
+              </div>
+            )}
 
             {/* Clear Modal Overlay */}
             {gameState === "clear" && (
